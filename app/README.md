@@ -16,7 +16,7 @@ Esta representa a prova de conceito e aplicação web de demonstração do proje
 
 3. Iniciar a execução do servidor local Streamlit:
    ```bash
-   streamlit run app.py
+   python -m streamlit run app.py
    ```
 
 ## Notas Técnicas
