@@ -33,7 +33,7 @@ python train.py --workspace "nome-da-workspace" --project "foe-bot" --version 2
 #### Monitorização Através de TensorBoard
 É possível verificar e analisar o desempenho em tempo real das métricas (e.g. *Loss*, precisão convergente) pelo acoplamento gerido sobre o TensorBoard. Durante ou após a finalização temporal do treino, deverá abrir-se um terminal complementar na raiz do projeto contendo a seguinte instrução:
 ```bash
-tensorboard --logdir runs/train/
+python -m tensorboard.main --logdir src/runs/train/
 ```
 Após iniciação de servidor, as métricas podem ser avaliadas acedendo ao ponto centralizado indicado na interface original (geralmente [http://localhost:6006](http://localhost:6006)).
 
@@ -59,5 +59,5 @@ Para finalização da Prova de Conceito ilustrativa exigida (secção D4):
 
 ```bash
 cd app
-streamlit run app.py
+python -m streamlit run app.py
 ```
