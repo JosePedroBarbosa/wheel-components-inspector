@@ -1,63 +1,169 @@
-# Wheel Inspector
+# Wheel Components Inspector
 
-Solução completa para a deteção automática de rodas, jantes e parafusos com recurso a métodos de Visão Computacional (YOLOv8). Este projeto cumpre os requisitos do Trabalho Prático da unidade curricular de Inteligência Artificial, providenciando as métricas e processos requeridos sob a perspetiva de um pacote industrial.
+Solucao de ponta a ponta para detecao automatica de **rodas**, **jantes** e **parafusos** em imagens, utilizando YOLOv8 e visao computacional. Projeto desenvolvido no ambito do Trabalho Pratico da unidade curricular de Inteligencia Artificial (Engenharia Informatica, ESTG - P.Porto, 2025/2026).
+
+## Caso de Uso
+
+Inspecao visual automatizada de componentes de rodas em contexto industrial/oficinal. O sistema deteta e localiza tres classes de objetos:
+
+| Classe | Descricao |
+|--------|-----------|
+| `roda` | Conjunto completo de pneu + jante |
+| `jante` | Parte central metalica (rim/hub) |
+| `parafuso` | Pernos de fixacao da jante ao eixo |
 
 ## Estrutura do Projeto
 
-- `/dataset` - Diretório destinado a armazenar os ficheiros de imagens e anotações obtidos através do Roboflow.
-- `/modelos` - Diretório de destino para os modelos finais treinados (`.pt`), bem como o respetivo manifesto (formato JSON) e documentação associada (Model Card).
-- `/src` - Módulos de treino e inferência via linha de comandos, contendo a lógica central de extração e modulação de aprendizagem automática.
-- `/app` - Aplicação visual interativa (prova de conceito construída em Streamlit) concebida para demonstrar de imediato as capacidades do algoritmo em tempo real.
+```
+wheel-components-inspector/
+  dataset/                  # Imagens e anotacoes (formato YOLOv8)
+    train/images/ labels/
+    valid/images/ labels/
+    test/images/  labels/
+    data.yaml               # Configuracao do dataset (Roboflow)
+    dataset.md              # Documentacao do dataset
+  modelos/                  # Artefactos do modelo treinado
+    weights.pt              # Pesos do modelo (apos treino)
+    model_card.md           # Documentacao legivel por humanos
+    model_manifest.json     # Metadados estruturados (legivel por maquina)
+    train_config.yaml       # Configuracao de treino reproduzivel
+  src/                      # Scripts de treino e inferencia CLI
+    train.py                # Pipeline de treino (Roboflow + YOLOv8)
+    infer.py                # Inferencia em imagem individual
+  app/                      # Aplicacao de demonstracao (Streamlit)
+    app.py                  # Aplicacao web interativa
+    requirements.txt        # Dependencias Python
+    README.md               # Instrucoes de execucao da app
+  tutorial_yolo.ipynb       # Notebook de referencia do professor
+```
 
-## Instalação e Configuração Inicial
+## Instalacao
 
-1. Proceder à instalação das dependências centrais do projeto (listadas em `app/requirements.txt`) e bibliotecas auxiliares de conexão como o Roboflow.
-2. Copiar ou renomear o ficheiro provisório `.env_template` para `.env` e inserir a chave de API privativa do Roboflow necessária à extração de ficheiros da Cloud.
-   ```bash
-   cp .env_template .env
-   ```
+### Requisitos
 
-## Workflow Principal
+- Python 3.10+
+- pip
 
-### 1. Extração do Dataset e Treino do Modelo
+### Setup
 
-O script `train.py` encarrega-se da obtenção automatizada da referida fonte de dados no Roboflow, prosseguindo com o acionamento do processo de treino do motor YOLO arquitetado:
+```bash
+# 1. Clonar o repositorio
+git clone <url-do-repositorio>
+cd wheel-components-inspector
+
+# 2. Criar ambiente virtual (recomendado)
+python -m venv .venv
+source .venv/bin/activate    # Linux/Mac
+.venv\Scripts\activate       # Windows
+
+# 3. Instalar dependencias
+pip install -r app/requirements.txt
+
+# 4. Configurar chave API do Roboflow
+cp .env_template .env
+# Editar .env e inserir a chave
+```
+
+## Workflow
+
+### 1. Download do Dataset e Treino
 
 ```bash
 cd src
-python train.py --workspace "nome-da-workspace" --project "foe-bot" --version 2
+
+# Apenas download do dataset
+python train.py \
+  --workspace "jose-barbosa-rdg0j" \
+  --project "wheel-components-inspector" \
+  --version 1 \
+  --download-only
+
+# Treino completo
+python train.py \
+  --workspace "jose-barbosa-rdg0j" \
+  --project "wheel-components-inspector" \
+  --version 1 \
+  --epochs 100 \
+  --batch 16 \
+  --device cpu
 ```
 
-*(Caso se pretenda aprofundar as configurações de treino ou correr iterações em ambientes com diferentes capacidades gráficas, recomenda-se a consulta `python train.py --help` para verificação dos argumentos admitidos, como `--epochs` ou `--device`).*
+Argumentos disponiveis: `--epochs`, `--imgsz`, `--batch`, `--device` (`cpu`, `0`, `mps`), `--run-name`, `--download-only`.
 
-#### Monitorização Através de TensorBoard
-É possível verificar e analisar o desempenho em tempo real das métricas (e.g. *Loss*, precisão convergente) pelo acoplamento gerido sobre o TensorBoard. Durante ou após a finalização temporal do treino, deverá abrir-se um terminal complementar na raiz do projeto contendo a seguinte instrução:
+### 2. Monitorizacao com TensorBoard
+
 ```bash
 python -m tensorboard.main --logdir src/runs/train/
+# Aceder a http://localhost:6006
 ```
-Após iniciação de servidor, as métricas podem ser avaliadas acedendo ao ponto centralizado indicado na interface original (geralmente [http://localhost:6006](http://localhost:6006)).
 
-### 2. Preservação de Artefactos de Entrega
+### 3. Preservacao dos Artefactos
 
-1. Após a concretização da ronda de treino selecionada, o motor gerará o diretório estrutural `runs/train/`. 
-2. Acede-se à subcamada `runs/train/.../weights/` para se proceder à cópia do artefacto `best.pt` em direção à diretoria de submissão do trabalho final (`modelos/nome-do-modelo/best.pt`).
-3. Posteriormente, deve certificar-se o enriquecimento e atualização manual dos templates textuais fornecidos (`model_card.md` e `model_manifest.json`) registando as observações e debilidades inerentes identificadas de forma individual ou colaborativa pelo grupo.
+Apos o treino, copiar o melhor modelo para a pasta de entrega:
 
-### 3. Validação Exploratória via Linha de Comandos
+```bash
+cp src/runs/train/wheel-inspector-model/weights/best.pt modelos/weights.pt
+```
 
-A fim de testar analiticamente se o modelo detém as capacidades generalizadoras perante novas observações, a invocação pode ser concretizada explicitamente:
+O ficheiro `train_config.yaml` e gerado automaticamente pelo script de treino.
+
+### 4. Inferencia CLI
 
 ```bash
 cd src
-python infer.py --model ../modelos/best.pt --image ../test-image.jpg
-``` 
-Este comando fará compilar um desfecho estático no diretório `/output`, materializado sob a forma de um objeto exportado (`.json`) descrevendo atributos, bem como a réplica da sua matriz renderizando os polígonos correspondentes às anotações sobrepostas (frequentemente denominados *bounding boxes*).
+python infer.py --model ../modelos/weights.pt --image ../test-image.jpg
+```
 
-### 4. Demonstração Executável (Front-End)
+Gera um ficheiro JSON com as detecoes e uma imagem anotada no diretorio `output/`.
 
-Para finalização da Prova de Conceito ilustrativa exigida (secção D4):
+### 5. Aplicacao de Demonstracao
 
 ```bash
 cd app
 python -m streamlit run app.py
 ```
+
+Funcionalidades:
+- Upload de imagem para inspecao
+- Selecao de modelo e ajuste do limiar de confianca
+- Visualizacao lado a lado (original vs. bounding boxes)
+- Tabela de detecoes e output JSON
+- Exportacao de resultados
+- Comparacao de modelos (quando existem 2+)
+- Historico de inferencias
+
+## Modelo
+
+- **Arquitetura**: YOLOv8m (medium) com pesos pre-treinados
+- **Imagem de entrada**: 640x640 RGB
+- **Augmentations**: HSV shift, horizontal flip, scale, mosaic
+- **Early stopping**: patience=50 epocas
+
+Detalhes completos em [`modelos/model_card.md`](modelos/model_card.md) e [`modelos/model_manifest.json`](modelos/model_manifest.json).
+
+## Dataset
+
+- **Fonte**: Imagens recolhidas pelo grupo, etiquetadas no Roboflow
+- **Formato**: YOLOv8 (bounding boxes normalizadas)
+- **Classes**: 3 (jante, parafuso, roda)
+- **Split**: 70% treino / 20% validacao / 10% teste
+
+Detalhes em [`dataset/dataset.md`](dataset/dataset.md).
+
+## Tecnologias
+
+| Componente | Tecnologia |
+|------------|-----------|
+| Detecao de objetos | [Ultralytics YOLOv8](https://docs.ultralytics.com/) |
+| Gestao de dados | [Roboflow](https://roboflow.com/) |
+| Interface web | [Streamlit](https://streamlit.io/) |
+| Monitorizacao | [TensorBoard](https://www.tensorflow.org/tensorboard) |
+| Visao computacional | OpenCV, Pillow |
+
+## Autores
+
+- Jose Barbosa
+- Pedro Rocha
+- Agostinho Ferreira
+
+**Unidade Curricular**: Inteligencia Artificial, ESTG - P.Porto, 2025/2026

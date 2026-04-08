@@ -29,16 +29,21 @@ venv/
 .venv/
 ENV/
 
-# IDEs
+# IDEs & tools
 .vscode/
 .idea/
+.claude/
 
 # YOLO / ML
 runs/
 *.pt
 *.onnx
-dataset/
 output/
+
+# Dataset images (large files, exported from Roboflow)
+dataset/train/
+dataset/valid/
+dataset/test/
 
 # OS
 .DS_Store

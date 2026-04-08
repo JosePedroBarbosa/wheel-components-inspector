@@ -1,24 +1,29 @@
-# Wheel Inspector - Streamlit App
+# Wheel Inspector - Aplicacao de Demonstracao
 
-Esta representa a prova de conceito e aplicação web de demonstração do projeto, desenvolvida em [Streamlit](https://streamlit.io/).
+Aplicacao web interativa construida em [Streamlit](https://streamlit.io/) para demonstrar a detecao de componentes de rodas (jantes, parafusos, rodas) utilizando modelos YOLOv8.
 
-## Guia de Execução
+## Funcionalidades
 
-1. Aceder ao diretório transacional `app/`:
-   ```bash
-   cd app
-   ```
+- **Upload de imagem** para inspecao visual
+- **Selecao de modelo** via dropdown (caso existam multiplos modelos treinados)
+- **Slider de confianca** ajustavel para controlar o limiar de detecao
+- **Visualizacao lado a lado** da imagem original e das bounding boxes
+- **Tabela de detecoes** com classe e nivel de confianca
+- **Output JSON** estruturado com todas as detecoes
+- **Exportacao** de resultados para ficheiro JSON
+- **Comparacao de modelos** lado a lado sobre a mesma imagem
+- **Historico de inferencias** das ultimas sessoes
 
-2. Proceder à instalação da árvore de dependências associadas:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Execucao
 
-3. Iniciar a execução do servidor local Streamlit:
-   ```bash
-   python -m streamlit run app.py
-   ```
+```bash
+cd app
+pip install -r requirements.txt
+python -m streamlit run app.py
+```
 
-## Notas Técnicas
-- A aplicação procede autonomamente à procura e reflexão de binários compilados `.pt` (pesos treinados pela arquitetura YOLOv8) quando colocados dentro do diretório `/modelos/`. 
-- Deverá ser assegurada a prévia conclusão de um ciclo de treino, e a sua importação de métricas com sucesso para o respetivo diretório de artefactos finais, antes da instanciação deste servidor analítico.
+## Requisitos
+
+- Python 3.10+
+- Pelo menos um ficheiro de pesos `.pt` presente em `modelos/`
+- Dependencias listadas em `requirements.txt`
