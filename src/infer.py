@@ -15,7 +15,6 @@ from ultralytics import YOLO
 
 SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff"}
 
-
 def run_inference(
     model_path: str,
     image_path: str,

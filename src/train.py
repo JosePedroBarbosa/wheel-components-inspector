@@ -55,10 +55,10 @@ TRAIN_DEFAULTS = {
     "seed": 0,
 }
 
-
 def download_dataset(workspace_name: str, project_name: str, version_num: int) -> str:
     """Download a YOLOv8 dataset from Roboflow into ``dataset/``."""
     api_key = os.getenv("ROBOFLOW_API_KEY")
+
     if not api_key:
         raise ValueError("ROBOFLOW_API_KEY not found in .env file.")
 
@@ -86,10 +86,13 @@ def export_train_config(args: argparse.Namespace, data_path: str) -> Path:
         "device": args.device,
         **{k: v for k, v in TRAIN_DEFAULTS.items() if k not in ("epochs", "imgsz", "batch")},
     }
+
     out = ROOT_DIR / "modelos" / "train_config.yaml"
     out.parent.mkdir(parents=True, exist_ok=True)
+
     with open(out, "w", encoding="utf-8") as f:
         yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+
     print(f"Training config saved to: {out}")
     return out
 
@@ -186,7 +189,6 @@ def main():
         print(f"Download complete: {data_loc}")
     else:
         train_model(data_loc, args.epochs, args.imgsz, args.batch, args.device, args.run_name)
-
 
 if __name__ == "__main__":
     main()
