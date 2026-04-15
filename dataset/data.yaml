@@ -6,8 +6,8 @@ nc: 3
 roboflow:
   license: CC BY 4.0
   project: wheel-components-inspector
-  url: https://universe.roboflow.com/jose-barbosa-rdg0j/wheel-components-inspector/dataset/1
-  version: 1
+  url: https://universe.roboflow.com/jose-barbosa-rdg0j/wheel-components-inspector/dataset/2
+  version: 2
   workspace: jose-barbosa-rdg0j
 test: ../test/images
 train: ../train/images
