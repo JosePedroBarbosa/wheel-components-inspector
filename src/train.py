@@ -22,37 +22,82 @@ DATASET_DIR = ROOT_DIR / "dataset"
 RUNS_DIR = ROOT_DIR / "src" / "runs" / "train"
 
 TRAIN_DEFAULTS = {
-    "model_variant": "yolov8m.pt",
-    "epochs": 100,
-    "patience": 50,
-    "batch": 16,
-    "imgsz": 640,
-    "workers": 8,
-    "optimizer": "auto",
-    "lr0": 0.01,
-    "lrf": 0.01,
-    "momentum": 0.937,
-    "weight_decay": 0.0005,
-    "warmup_epochs": 3.0,
-    "warmup_momentum": 0.8,
-    "warmup_bias_lr": 0.1,
-    "box": 7.5,
-    "cls": 0.5,
-    "dfl": 1.5,
-    "hsv_h": 0.015,
-    "hsv_s": 0.7,
-    "hsv_v": 0.4,
-    "degrees": 0.0,
-    "translate": 0.1,
-    "scale": 0.5,
-    "shear": 0.0,
-    "perspective": 0.0,
-    "flipud": 0.0,
-    "fliplr": 0.5,
-    "mosaic": 1.0,
-    "mixup": 0.0,
-    "copy_paste": 0.0,
-    "seed": 0,
+    # Full list of available pre-trained models: https://docs.ultralytics.com/models/yolov8/#performance-metrics
+    "model_variant": "yolov8m.pt",         # Load the pre-trained model weights
+
+    # ── Core training settings ────────────────────────────────────────────────
+    "epochs": 100,      # Total number of training epochs.
+                        # More epochs = more learning, but risk of overfitting.
+                        # Typical range: 50–300.
+
+    "patience": 50,     # Early stopping: halt training if no improvement is seen
+                        # for this many epochs. Set to 0 to disable.
+
+    "batch": 16,        # Number of images per training batch.
+                        # Higher = faster but needs more VRAM. Use -1 for AutoBatch.
+
+    "imgsz": 640,       # Input image size (pixels). Images are resized to this square.
+                        # Common values: 416, 512, 640, 1280.
+
+    # ── Hardware ──────────────────────────────────────────────────────────────
+    "workers": 8,       # Number of DataLoader worker threads for loading images.
+                        # Reduce if you see memory errors or CPU bottlenecks.
+
+    # ── Optimiser ─────────────────────────────────────────────────────────────
+    "optimizer": "auto", # Optimiser algorithm. Options:
+                         # "SGD", "Adam", "AdamW", "NAdam", "RAdam", "RMSProp", "auto"
+                         # "auto" selects SGD or AdamW based on the model.
+
+    "lr0": 0.01,        # Initial learning rate.
+                        # Lower values (e.g. 0.001) are safer for fine-tuning.
+
+    "lrf": 0.01,        # Final learning rate as a fraction of lr0.
+                        # The scheduler decays lr0 → lr0 * lrf over training.
+
+    "momentum": 0.937,  # SGD momentum / Adam beta1.
+                        # Controls how much past gradients influence the update.
+
+    "weight_decay": 0.0005, # L2 regularisation penalty — discourages large weights
+                            # and helps prevent overfitting.
+
+    "warmup_epochs": 3.0,   # Number of epochs for learning-rate warm-up at the start.
+                            # LR gradually rises from 0 to lr0 during this phase.
+
+    "warmup_momentum": 0.8, # Initial momentum during the warm-up phase.
+    "warmup_bias_lr": 0.1,  # Initial learning rate for bias parameters during warm-up.
+
+    # ── Loss weights ──────────────────────────────────────────────────────────
+    "box": 7.5,         # Weight for the bounding-box regression loss.
+                        # Increase to make the model focus more on box accuracy.
+
+    "cls": 0.5,         # Weight for the classification loss.
+    "dfl": 1.5,         # Weight for the Distribution Focal Loss (box refinement).
+
+    # ── Augmentation ──────────────────────────────────────────────────────────
+    "hsv_h": 0.015,     # Random hue shift (fraction of 360°). Adds colour variety.
+    "hsv_s": 0.7,       # Random saturation shift. Range: 0.0–1.0.
+    "hsv_v": 0.4,       # Random brightness (value) shift. Range: 0.0–1.0.
+
+    "degrees": 0.0,     # Random rotation range in degrees (e.g. 10 → ±10°).
+    "translate": 0.1,   # Random translation as a fraction of image size (e.g. 0.1 = 10%).
+    "scale": 0.5,       # Random scale factor (e.g. 0.5 means zoom between 50%–150%).
+    "shear": 0.0,       # Random shear angle in degrees.
+    "perspective": 0.0, # Random perspective distortion. Range: 0.0–0.001.
+    "flipud": 0.0,      # Probability of vertical flip. 0.0 = disabled.
+    "fliplr": 0.5,      # Probability of horizontal flip. 0.5 = 50% chance per image.
+
+    "mosaic": 1.0,      # Probability of Mosaic augmentation (combines 4 images).
+                        # Very effective for small object detection. 0.0 = disabled.
+
+    "mixup": 0.0,       # Probability of MixUp augmentation (blends 2 images).
+                        # Useful for improving generalisation.
+
+    "copy_paste": 0.0,  # Probability of Copy-Paste augmentation (pastes objects
+                        # from one image onto another). Good for instance segmentation.
+
+    # ── Reproducibility ───────────────────────────────────────────────────────
+    "seed": 0,          # Random seed for reproducibility. Use the same seed to get
+                        # identical results across runs.
 }
 
 def download_dataset(workspace_name: str, project_name: str, version_num: int) -> str:
