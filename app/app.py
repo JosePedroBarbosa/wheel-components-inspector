@@ -42,11 +42,19 @@ st.markdown(
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 
-def get_available_models() -> list[str]:
-    """Scan ``modelos/`` for .pt weight files."""
+def get_available_models() -> list[Path]:
+    """Return sorted list of model folders inside ``modelos/`` that contain a .pt file."""
     if not MODELS_DIR.exists():
         return []
-    return sorted(str(p) for p in MODELS_DIR.rglob("*.pt"))
+    return sorted(
+        (d for d in MODELS_DIR.iterdir() if d.is_dir() and list(d.glob("*.pt"))),
+        key=lambda d: d.name,
+    )
+
+
+def get_model_pt(folder: Path) -> Path:
+    """Return the first .pt file found inside a model folder."""
+    return next(iter(folder.glob("*.pt")))
 
 
 @st.cache_resource
@@ -103,19 +111,19 @@ st.sidebar.header("Configuracao")
 available_models = get_available_models()
 
 if not available_models:
-    st.sidebar.error("Nenhum modelo (.pt) encontrado em `modelos/`.")
+    st.sidebar.error("Nenhuma pasta de modelo encontrada em `modelos/`.")
     st.stop()
 
-selected_model = st.sidebar.selectbox("Modelo", available_models, format_func=lambda p: Path(p).name)
+selected_folder = st.sidebar.selectbox("Modelo", available_models, format_func=lambda d: d.name)
 conf_threshold = st.sidebar.slider("Limiar de Confianca", 0.0, 1.0, 0.25, 0.05)
 
 enable_comparison = len(available_models) > 1 and st.sidebar.checkbox("Comparar dois modelos")
-comparison_model = None
+comparison_folder = None
 if enable_comparison:
-    other_models = [m for m in available_models if m != selected_model]
-    if other_models:
-        comparison_model = st.sidebar.selectbox(
-            "Modelo de comparacao", other_models, format_func=lambda p: Path(p).name
+    other_folders = [d for d in available_models if d != selected_folder]
+    if other_folders:
+        comparison_folder = st.sidebar.selectbox(
+            "Modelo de comparacao", other_folders, format_func=lambda d: d.name
         )
 
 st.sidebar.divider()
@@ -126,7 +134,7 @@ st.sidebar.caption(f"Modelos disponiveis: {len(available_models)}")
 st.title("Wheel Inspector")
 st.markdown("Plataforma de Inspecao Visual para Deteção de Rodas, Jantes e Parafusos.")
 
-model = load_model(selected_model)
+model = load_model(str(get_model_pt(selected_folder)))
 
 uploaded_file = st.file_uploader(
     "Arraste ou selecione a imagem para inspecao",
@@ -150,18 +158,18 @@ if uploaded_file is not None:
     st.divider()
 
     # ── Images ───────────────────────────────────────────────────────────
-    if comparison_model:
-        model_b = load_model(comparison_model)
+    if comparison_folder:
+        model_b = load_model(str(get_model_pt(comparison_folder)))
         with st.spinner("A processar modelo de comparacao..."):
             result_b = run_detection(model_b, image, conf_threshold)
 
         col_a, col_b = st.columns(2)
         with col_a:
-            st.markdown(f"### {Path(selected_model).name}")
+            st.markdown(f"### {selected_folder.name}")
             st.image(annotated, channels="BGR", width="stretch")
             st.caption(f"{len(detections)} detecoes | {result['speed_ms']:.1f} ms")
         with col_b:
-            st.markdown(f"### {Path(comparison_model).name}")
+            st.markdown(f"### {comparison_folder.name}")
             st.image(result_b["annotated"], channels="BGR", width="stretch")
             st.caption(
                 f"{len(result_b['detections'])} detecoes | {result_b['speed_ms']:.1f} ms"
@@ -208,7 +216,7 @@ if uploaded_file is not None:
     st.session_state.history.append({
         "timestamp": datetime.now().strftime("%H:%M:%S"),
         "filename": uploaded_file.name,
-        "model": Path(selected_model).name,
+        "model": selected_folder.name,
         "detections": len(detections),
         "speed_ms": round(result["speed_ms"], 1),
     })

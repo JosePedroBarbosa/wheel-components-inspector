@@ -206,8 +206,30 @@ def train_model(
         verbose=True,
     )
 
-    print("Training complete!")
+    print_metrics_summary(results)
     return results
+
+
+def print_metrics_summary(metrics: dict) -> None:
+    """Print a formatted summary of the final validation metrics."""
+    if not metrics:
+        print("Training complete!")
+        return
+
+    keys = {
+        "precision":  "metrics/precision(B)",
+        "recall":     "metrics/recall(B)",
+        "mAP50":      "metrics/mAP50(B)",
+        "mAP50-95":   "metrics/mAP50-95(B)",
+    }
+
+    print("\nTraining complete!")
+    print("\n── Final Metrics ────────────────────────────────────────")
+    for label, key in keys.items():
+        value = metrics.get(key)
+        if value is not None:
+            print(f"  {label:<12}: {value:.4f}")
+    print("─────────────────────────────────────────────────────────")
 
 
 def main():
