@@ -210,26 +210,48 @@ def train_model(
     return results
 
 
-def print_metrics_summary(metrics: dict) -> None:
-    """Print a formatted summary of the final validation metrics."""
+def print_metrics_summary(metrics) -> None:
+    """Print a per-class + overall table with Precision, Recall, mAP50, mAP50-95."""
+    print("\nTraining complete!")
+
     if not metrics:
-        print("Training complete!")
         return
 
-    keys = {
-        "precision":  "metrics/precision(B)",
-        "recall":     "metrics/recall(B)",
-        "mAP50":      "metrics/mAP50(B)",
-        "mAP50-95":   "metrics/mAP50-95(B)",
-    }
+    # results from model.train() is a DetMetrics object — use results_dict for the
+    # overall scalars and box.* arrays for per-class breakdown.
+    try:
+        rd      = metrics.results_dict
+        names   = metrics.names
+        indices = metrics.ap_class_index
+        p_cls   = metrics.box.p
+        r_cls   = metrics.box.r
+        ap50    = metrics.box.ap50
+        ap      = metrics.box.ap
+        has_cls = True
+    except Exception:
+        rd      = {}
+        has_cls = False
 
-    print("\nTraining complete!")
-    print("\n── Final Metrics ────────────────────────────────────────")
-    for label, key in keys.items():
-        value = metrics.get(key)
-        if value is not None:
-            print(f"  {label:<12}: {value:.4f}")
-    print("─────────────────────────────────────────────────────────")
+    nan = float("nan")
+    p_all     = rd.get("metrics/precision(B)", nan)
+    r_all     = rd.get("metrics/recall(B)",    nan)
+    map50_all = rd.get("metrics/mAP50(B)",     nan)
+    map_all   = rd.get("metrics/mAP50-95(B)",  nan)
+
+    col = (12, 10, 10, 10, 10)
+    sep = "  " + "  ".join("─" * w for w in col)
+
+    print(f"\n── Final Metrics {'─' * 47}")
+    print(f"  {'Class':<{col[0]}}  {'Precision':>{col[1]}}  {'Recall':>{col[2]}}  {'mAP@50':>{col[3]}}  {'mAP@50-95':>{col[4]}}")
+    print(sep)
+    print(f"  {'all':<{col[0]}}  {p_all:>{col[1]}.4f}  {r_all:>{col[2]}.4f}  {map50_all:>{col[3]}.4f}  {map_all:>{col[4]}.4f}")
+
+    if has_cls:
+        for i, idx in enumerate(indices):
+            name = names.get(int(idx), str(idx))
+            print(f"  {name:<{col[0]}}  {p_cls[i]:>{col[1]}.4f}  {r_cls[i]:>{col[2]}.4f}  {ap50[i]:>{col[3]}.4f}  {ap[i]:>{col[4]}.4f}")
+
+    print(sep)
 
 
 def main():
