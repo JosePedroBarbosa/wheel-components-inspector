@@ -82,7 +82,7 @@ def run_detection(model: YOLO, image: np.ndarray, conf: float) -> dict:
             },
         })
 
-    annotated = result.plot(conf=True, labels=True, boxes=True, line_width=4, font_size=18)
+    annotated = result.plot(conf=True, labels=True, boxes=True, line_width=1, font_size=8)
 
     return {
         "detections": detections,
