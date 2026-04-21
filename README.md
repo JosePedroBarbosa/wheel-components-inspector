@@ -93,7 +93,7 @@ Argumentos disponiveis: `--epochs`, `--imgsz`, `--batch`, `--device` (`cpu`, `0`
 ### 2. Monitorizacao com TensorBoard
 
 ```bash
-python -m tensorboard.main --logdir src/runs/train/
+tensorboard --logdir src/runs/train
 # Aceder a http://localhost:6006
 ```
 

@@ -13,9 +13,11 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 import roboflow
-from ultralytics import YOLO
+from ultralytics import YOLO, settings
 
 load_dotenv()
+
+settings.update({"tensorboard": True})
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATASET_DIR = ROOT_DIR / "dataset"
