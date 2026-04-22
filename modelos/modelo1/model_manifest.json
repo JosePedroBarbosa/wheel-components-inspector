@@ -24,18 +24,7 @@
     "dataset_format": "yolo",
     "image_count": { "train": 0, "val": 0, "test": 0 },
     "source": "collected_by_students",
-    "labeling_tool": "Roboflow",
     "labeling_notes": "Bounding boxes cover the visible extent of each component. Partially occluded objects are labeled if >30% visible."
-  },
-  "training": {
-    "base_model": "yolov8m.pt",
-    "epochs": 100,
-    "imgsz": 640,
-    "batch": 16,
-    "patience": 50,
-    "optimizer": "auto",
-    "lr0": 0.01,
-    "augmentations": ["hsv_shift", "horizontal_flip", "scale", "mosaic"]
   },
   "evaluation": {
     "test_metrics": {

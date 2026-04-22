@@ -59,4 +59,3 @@
 - **Version:** v1.0
 - **Date:** 2026-04
 - **Authors:** Jose Barbosa, [other group members]
-- **Course:** Inteligencia Artificial, Engenharia Informatica, ESTG - P.Porto
