@@ -16,25 +16,31 @@ Inspecao visual automatizada de componentes de rodas em contexto industrial/ofic
 
 ```
 wheel-components-inspector/
-  dataset/                  # Imagens e anotacoes (formato YOLOv8)
+  dataset/                    # Imagens e anotacoes (formato YOLOv8)
     train/images/ labels/
     valid/images/ labels/
     test/images/  labels/
-    data.yaml               # Configuracao do dataset (Roboflow)
-    dataset.md              # Documentacao do dataset
-  modelos/                  # Artefactos do modelo treinado
-    weights.pt              # Pesos do modelo (apos treino)
-    model_card.md           # Documentacao legivel por humanos
-    model_manifest.json     # Metadados estruturados (legivel por maquina)
-    train_config.yaml       # Configuracao de treino reproduzivel
-  src/                      # Scripts de treino e inferencia CLI
-    train.py                # Pipeline de treino (Roboflow + YOLOv8)
-    infer.py                # Inferencia em imagem individual
-  app/                      # Aplicacao de demonstracao (Streamlit)
-    app.py                  # Aplicacao web interativa
-    requirements.txt        # Dependencias Python
-    README.md               # Instrucoes de execucao da app
-  tutorial_yolo.ipynb       # Notebook de referencia do professor
+    data.yaml                 # Configuracao do dataset (Roboflow)
+    dataset.md                # Documentacao do dataset
+  modelos/                    # Artefactos dos modelos treinados
+    modelo1/                  # Modelo base (v1.0)
+      weights.pt              # Pesos do modelo
+      model_card.md           # Documentacao legivel por humanos
+      model_manifest.json     # Metadados estruturados (legivel por maquina)
+    modelo2/                  # Modelo melhorado (v2.0 - foco em parafusos)
+      weights.pt
+      model_card.md
+      model_manifest.json
+      train_config.yaml       # Configuracao de treino reproduzivel
+  src/                        # Scripts de treino e inferencia CLI
+    train.py                  # Pipeline de treino (Roboflow + YOLOv8)
+    infer.py                  # Inferencia em imagem individual
+    runs1/                    # Artefactos de treino do modelo 1
+    runs2/                    # Artefactos de treino do modelo 2
+  app/                        # Aplicacao de demonstracao (Streamlit)
+    app.py                    # Aplicacao web interativa
+    requirements.txt          # Dependencias Python
+    README.md                 # Instrucoes de execucao da app
 ```
 
 ## Instalacao
@@ -75,17 +81,17 @@ cd src
 python train.py \
   --workspace "jose-barbosa-rdg0j" \
   --project "wheel-components-inspector" \
-  --version 1 \
+  --version 6 \
   --download-only
 
 # Treino completo
 python train.py \
   --workspace "jose-barbosa-rdg0j" \
   --project "wheel-components-inspector" \
-  --version 1 \
+  --version 6 \
   --epochs 100 \
-  --batch 16 \
-  --device cpu
+  --batch 8 \
+  --device 0
 ```
 
 Argumentos disponiveis: `--epochs`, `--imgsz`, `--batch`, `--device` (`cpu`, `0`, `mps`), `--run-name`, `--download-only`.
@@ -93,25 +99,33 @@ Argumentos disponiveis: `--epochs`, `--imgsz`, `--batch`, `--device` (`cpu`, `0`
 ### 2. Monitorizacao com TensorBoard
 
 ```bash
-tensorboard --logdir src/runs/train
+# Modelo 1
+tensorboard --logdir src/runs1/train
+# Modelo 2
+tensorboard --logdir src/runs2/train
 # Aceder a http://localhost:6006
 ```
 
 ### 3. Preservacao dos Artefactos
 
-Apos o treino, copiar o melhor modelo para a pasta de entrega:
+Apos o treino, copiar o melhor modelo para a pasta do modelo correspondente:
 
 ```bash
-cp src/runs/train/wheel-inspector-model/weights/best.pt modelos/weights.pt
-```
+# Modelo 1
+cp src/runs1/train/wheel-inspector-model/weights/best.pt modelos/modelo1/weights.pt
 
-O ficheiro `train_config.yaml` e gerado automaticamente pelo script de treino.
+# Modelo 2
+cp src/runs2/train/wheel-inspector-model/weights/best.pt modelos/modelo2/weights.pt
+```
 
 ### 4. Inferencia CLI
 
 ```bash
 cd src
-python infer.py --model ../modelos/weights.pt --image ../test-image.jpg
+# Usando modelo 1
+python infer.py --model ../modelos/modelo1/weights.pt --image ../test-image.jpg
+# Usando modelo 2
+python infer.py --model ../modelos/modelo2/weights.pt --image ../test-image.jpg
 ```
 
 Gera um ficheiro JSON com as detecoes e uma imagem anotada no diretorio `output/`.
@@ -129,24 +143,33 @@ Funcionalidades:
 - Visualizacao lado a lado (original vs. bounding boxes)
 - Tabela de detecoes e output JSON
 - Exportacao de resultados
-- Comparacao de modelos (quando existem 2+)
+- Comparacao de modelos lado a lado
 - Historico de inferencias
 
-## Modelo
+## Modelos
 
-- **Arquitetura**: YOLOv8m (medium) com pesos pre-treinados
-- **Imagem de entrada**: 640x640 RGB
-- **Augmentations**: HSV shift, horizontal flip, scale, mosaic
-- **Early stopping**: patience=50 epocas
+Foram treinados dois modelos com arquitetura YOLOv8m (medium), pesos pre-treinados no COCO:
 
-Detalhes completos em [`modelos/model_card.md`](modelos/model_card.md) e [`modelos/model_manifest.json`](modelos/model_manifest.json).
+| Metrica | Modelo 1 (v1.0) | Modelo 2 (v2.0) |
+|---------|-----------------|-----------------|
+| mAP@0.5 | 0.8564 | 0.8878 |
+| mAP@0.5:0.95 | 0.7116 | 0.7207 |
+| Precision | 0.8616 | 0.9113 |
+| Recall | 0.8939 | 0.9041 |
+
+O Modelo 2 foi treinado com imagens adicionais de alta qualidade focadas em parafusos, resultando em melhoria significativa na detecao desta classe (Precision: 0.64 → 0.76, Recall: 0.68 → 0.71).
+
+Detalhes completos:
+- [`modelos/modelo1/model_card.md`](modelos/modelo1/model_card.md) | [`model_manifest.json`](modelos/modelo1/model_manifest.json)
+- [`modelos/modelo2/model_card.md`](modelos/modelo2/model_card.md) | [`model_manifest.json`](modelos/modelo2/model_manifest.json)
 
 ## Dataset
 
-- **Fonte**: Imagens recolhidas pelo grupo, etiquetadas no Roboflow
+- **Fonte**: 200 imagens recolhidas pelo grupo, etiquetadas no Roboflow
 - **Formato**: YOLOv8 (bounding boxes normalizadas)
 - **Classes**: 3 (jante, parafuso, roda)
-- **Split**: 70% treino / 20% validacao / 10% teste
+- **Split base**: 70% treino / 20% validacao / 10% teste
+- **Split efetivo** (apos augmentation no Roboflow aplicada ao treino): 87.5% treino / 8.3% validacao / 4.2% teste (480 imagens)
 
 Detalhes em [`dataset/dataset.md`](dataset/dataset.md).
 

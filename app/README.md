@@ -25,5 +25,5 @@ python -m streamlit run app.py
 ## Requisitos
 
 - Python 3.10+
-- Pelo menos um ficheiro de pesos `.pt` presente em `modelos/`
+- Pelo menos um ficheiro de pesos `.pt` presente em `modelos/modelo1/` ou `modelos/modelo2/`
 - Dependencias listadas em `requirements.txt`
