@@ -1,7 +1,7 @@
 # Model Card — Wheel Components Inspector - Model 2 (v2.0)
 
 ## 1. Overview
-- **Goal:** Detect and localize wheel components in images for automotive visual inspection, with a specific focus on more precision bolt (`parafuso`) detection.
+- **Goal:** Detect and localize wheel components in images for automotive visual inspection, with a specific focus on more precise bolt (`parafuso`) detection.
 - **Task:** Object Detection
 - **Classes:** `jante`, `parafuso`, `roda`
 - **Intended users:** Automotive workshop technicians, quality assurance auditors in assembly lines, and automated automotive inspection systems.
@@ -14,10 +14,10 @@
 ## 3. Training Data
 - **Data source:** Images collected by the project group and colleagues using various smartphones (iPhone, Samsung, Xiaomi, Huawei) across diverse locations (workshops, garages, parking lots, outdoors) covering multiple angles and lighting conditions. For this model, the base dataset was intentionally supplemented with additional close-up, high-quality images focusing specifically on bolts.
 - **Dataset size:** 200 base images collected (initial split train: 70%, val: 20%, test: 10%); after training-exclusive augmentations, it results in an effective dataset of 480 images (Split: 87.5% train / 8.3% val / 4.2% test).
-- **Class distribution:** Increase in high-quality `parafuso` instances.
-  - `jante`: > 200 instances
+- **Class distribution:** Increase in high-quality `parafuso` instances (other classes unchanged). Total of 1155 annotated instances:
+  - `jante`: 200 instances
   - `parafuso`: 755 instances
-  - `roda`: > 200 instances
+  - `roda`: 200 instances
 - **Labeling guidelines:** Only fully visible objects were annotated; bolts not perfectly visible were initially discarded, but re-evaluated with new detailed data to mitigate False Negatives. `roda` bounding boxes encompass the outer limit of the visible tire, while `jante` bounds strictly the rim. In composite shots, the rim box is contained within the wheel box.
 - **Augmentations:**
   - *In Roboflow (Static before training):* Horizontal flip (50%), Crop/zoom (0-15%), Rotation (±15°), Saturation (±20%), Brightness (-25% to +25%).
@@ -50,7 +50,7 @@
   - Validated hardware: AMD Ryzen 7 5700X CPU, NVIDIA GeForce RTX 3060 TI (8GB VRAM), 16GB DDR4 RAM.
 
 ## 7. Ethical / Safety / Privacy Considerations
-- No personally identifiable information (faces, license plates) is intentionally included in the dataset; any inadvertent captures were blurred manually.
+- No personally identifiable information (faces, license plates) is intentionally included in the dataset;
 - The model should not be used as the sole safety mechanism in critical automotive systems.
 
 ## 8. Versioning and Contact

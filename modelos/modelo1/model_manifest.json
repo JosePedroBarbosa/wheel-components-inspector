@@ -1,52 +1,59 @@
 {
-  "model_name": "wheel-components-inspector",
+  "model_name": "modelo1",
   "version": "1.0.0",
   "task": "object_detection",
   "framework": "ultralytics-yolo",
   "weights": {
-    "primary": "modelos/weights.pt"
+    "primary": "modelos/modelo1/weights.pt"
   },
   "classes": [
     { "name": "jante", "aliases": ["rim", "wheel hub"] },
-    { "name": "parafuso", "aliases": ["bolt", "screw", "lug nut"] },
+    { "name": "parafuso", "aliases": ["bolt", "screw"] },
     { "name": "roda", "aliases": ["wheel", "tire"] }
   ],
   "intended_use": {
     "summary": "Detect wheel components (rims, bolts, full wheels) for automotive visual inspection.",
     "environment": ["workshop", "garage", "outdoor parking", "assembly line"],
     "out_of_scope": [
-      "detect damage or wear on wheel components",
-      "classify tire brands or models",
-      "measure bolt torque"
+      "isolated disassembled tires without rims",
+      "internal hub components such as bearings or brake discs",
+      "motorcycle, bicycle or heavy vehicle wheels",
+      "damage or deformation detection on parts"
     ]
   },
   "data": {
     "dataset_format": "yolo",
-    "image_count": { "train": 0, "val": 0, "test": 0 },
+    "image_count": { "train": 420, "val": 40, "test": 20 },
     "source": "collected_by_students",
-    "labeling_notes": "Bounding boxes cover the visible extent of each component. Partially occluded objects are labeled if >30% visible."
+    "labeling_notes": "Only fully visible objects annotated; bolts not completely visible were discarded. When mounted, both `roda` and `jante` are boxed independently, with the rim contained within the wheel. `roda` boxes extend to the outer limit of the visible tire; `jante` boxes extend to the outer limit of the rim, excluding the tire. Low contrast bolts annotated only if clearly identifiable."
   },
   "evaluation": {
     "test_metrics": {
-      "map50": null,
-      "map5095": null,
-      "per_class_ap50": { "jante": null, "parafuso": null, "roda": null }
+      "map50": 0.8564,
+      "map5095": 0.7116,
+      "precision": 0.8616,
+      "recall": 0.8939,
+      "per_class": {
+        "jante":    { "map50": 0.9950, "map5095": 0.9683, "precision": 0.9859, "recall": 1.0000 },
+        "parafuso": { "map50": 0.5793, "map5095": 0.2282, "precision": 0.6413, "recall": 0.6816 },
+        "roda":     { "map50": 0.9950, "map5095": 0.9382, "precision": 0.9575, "recall": 1.0000 }
+      }
     },
-    "recommended_thresholds": { "confidence": 0.25, "nms_iou": 0.7 }
+    "recommended_thresholds": { "confidence": 0.5, "nms_iou": 0.7 }
   },
   "io": {
     "input": { "type": "image", "color_space": "RGB", "resize": 640 },
     "output": { "format": "detections_json", "bbox": "xyxy", "score": "confidence" }
   },
   "limitations": [
-    "Performance may drop on highly reflective rims with direct glare.",
-    "Small bolts (<30px) at distance may be missed.",
+    "Undetected bolts due to low contrast against dark rims or under dark shadows.",
+    "Failures on inclined capture angles far from the frontal perspective, which distort rim geometry and reduce the visible bolt area.",
     "Trained on daylight/indoor images; night conditions are untested."
   ],
   "runtime": {
-    "model_size_mb": null,
+    "model_size_mb": 51,
     "latency_ms_cpu": null,
-    "latency_ms_gpu": null
+    "latency_ms_gpu": 125
   },
   "license": {
     "model": "CC-BY-4.0",

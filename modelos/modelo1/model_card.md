@@ -50,7 +50,7 @@
   - Validated hardware: AMD Ryzen 7 5700X CPU, NVIDIA GeForce RTX 3060 TI (8GB VRAM), 16GB DDR4 RAM.
 
 ## 7. Ethical / Safety / Privacy Considerations
-- No personally identifiable information (faces, license plates) is intentionally included in the dataset; any inadvertent captures were blurred manually.
+- No personally identifiable information (faces, license plates) is intentionally included in the dataset;
 - The model should not be used as the sole safety mechanism in critical automotive systems.
 
 ## 8. Versioning and Contact
