@@ -1,6 +1,6 @@
 # Wheel Components Inspector
 
-Solucao de ponta a ponta para detecao automatica de **rodas**, **jantes** e **parafusos** em imagens, utilizando YOLOv8 e visao computacional. Projeto desenvolvido no ambito do Trabalho Pratico da unidade curricular de Inteligencia Artificial (Engenharia Informatica, ESTG - P.Porto, 2025/2026).
+Solucao para deteção automatica de **rodas**, **jantes** e **parafusos** em imagens, utilizando YOLOv8 e visao computacional. Projeto desenvolvido no ambito do Trabalho Pratico da unidade curricular de Inteligencia Artificial (Engenharia Informatica, ESTG - P.Porto, 2025/2026).
 
 ## Caso de Uso
 
